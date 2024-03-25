@@ -4,6 +4,7 @@
 
 #include "EngineUtils.h"
 #include "SequenceOrchestrator.h"
+#include "SmoothChaserCamera.h"
 
 USequencePlayToolsBPLibrary::USequencePlayToolsBPLibrary(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
@@ -15,7 +16,7 @@ void USequencePlayToolsBPLibrary::PlaySequenceQueueItemAt(UObject* WorldContextO
 {
 	if (!WorldContextObject) return;
 
-	UWorld* World = WorldContextObject->GetWorld();
+	const UWorld* World = WorldContextObject->GetWorld();
 	if (!World) return;
 
 	// Find the first SequenceOrchestrator instance in the world
@@ -30,4 +31,23 @@ void USequencePlayToolsBPLibrary::PlaySequenceQueueItemAt(UObject* WorldContextO
 	}
 
 	UE_LOG(LogTemp, Error, TEXT("SequenceOrchestrator not found in the world."));
+}
+
+void USequencePlayToolsBPLibrary::SetSmoothChaserCameraTarget(UObject* WorldContextObject,
+	ACineCameraActor* NewTargetCamera)
+{
+	if (!WorldContextObject) return;
+
+	const UWorld* World = WorldContextObject->GetWorld();
+	if (!World) return;
+
+	// Find the first SequenceOrchestrator instance in the world
+	for (TActorIterator<ASmoothChaserCamera> It(World); It; ++It)
+	{
+		if (ASmoothChaserCamera* SmoothChaserCamera = *It)
+		{
+			SmoothChaserCamera->SetTargetCamera(NewTargetCamera);
+			return;
+		}
+	}
 }

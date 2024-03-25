@@ -25,7 +25,7 @@ public class SequencePlayTools : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core",
+				"Core", "CinematicCamera",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
