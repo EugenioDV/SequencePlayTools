@@ -1,0 +1,30 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "1.0",
+  "FriendlyName": "SequencePlayTools",
+  "Description": "Assistant to playing sequences, looping, scheduling",
+  "Category": "Other",
+  "CreatedBy": "Eugenio Del Vecchio",
+  "CreatedByURL": "",
+  "DocsURL": "",
+  "MarketplaceURL": "",
+  "SupportURL": "",
+  "CanContainContent": true,
+  "IsBetaVersion": true,
+  "IsExperimentalVersion": false,
+  "Installed": false,
+  "SupportedTargetPlatforms": [
+    "Win64"
+  ],
+  "Modules": [
+    {
+      "Name": "SequencePlayTools",
+      "Type": "Runtime",
+      "LoadingPhase": "PreLoadingScreen",
+      "PlatformAllowList": [
+        "Win64"
+      ]
+    }
+  ]
+}
