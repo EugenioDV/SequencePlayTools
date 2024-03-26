@@ -15,11 +15,11 @@ public:
 	//todo linetrace to see if there's stuff in the middle
 	//todo timeline length (bp) should be based on distance with min and max and a multiplier
 	//todo camera snap conditions (e.g. too far, linetrace hit, etc)
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Blending Properties")
-	void SetTargetCamera(ACineCameraActor* NewTargetCamera);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Smooth Chaser Camera")
+	void SetTargetCamera(ACineCameraActor* NewTargetCamera, bool bSnapImmediately = false);
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Blending Properties")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Smooth Chaser Camera")
 	ACineCameraActor* TargetCamera = nullptr;
 	
 };

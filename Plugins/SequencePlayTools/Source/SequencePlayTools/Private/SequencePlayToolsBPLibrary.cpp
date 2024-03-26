@@ -34,7 +34,7 @@ void USequencePlayToolsBPLibrary::PlaySequenceQueueItemAt(UObject* WorldContextO
 }
 
 void USequencePlayToolsBPLibrary::SetSmoothChaserCameraTarget(UObject* WorldContextObject,
-	ACineCameraActor* NewTargetCamera)
+                                                              ACineCameraActor* NewTargetCamera, bool bSnapImmediately)
 {
 	if (!WorldContextObject) return;
 
@@ -46,7 +46,7 @@ void USequencePlayToolsBPLibrary::SetSmoothChaserCameraTarget(UObject* WorldCont
 	{
 		if (ASmoothChaserCamera* SmoothChaserCamera = *It)
 		{
-			SmoothChaserCamera->SetTargetCamera(NewTargetCamera);
+			SmoothChaserCamera->SetTargetCamera(NewTargetCamera,bSnapImmediately);
 			return;
 		}
 	}

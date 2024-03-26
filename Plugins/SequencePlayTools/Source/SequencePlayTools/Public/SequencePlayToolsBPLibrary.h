@@ -33,6 +33,6 @@ public:
 	static void PlaySequenceQueueItemAt(UObject* WorldContextObject, int32 QueueItemIndex);
 
 	UFUNCTION(BlueprintCallable, Category = "Sequence Play Tools", meta = (WorldContext = "WorldContextObject"))
-	static void SetSmoothChaserCameraTarget(UObject* WorldContextObject, class ACineCameraActor* NewTargetCamera);
+	static void SetSmoothChaserCameraTarget(UObject* WorldContextObject, class ACineCameraActor* NewTargetCamera, bool bSnapImmediately = false);
 
 };
