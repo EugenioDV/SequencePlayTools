@@ -25,7 +25,9 @@ public class SequencePlayTools : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core", "CinematicCamera",
+				"Core",
+				"MovieScene",
+				"CinematicCamera"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -39,7 +41,8 @@ public class SequencePlayTools : ModuleRules
 				"Slate",
 				"SlateCore",
 				"LevelSequence",
-				"MovieScene"
+				"MovieSceneTracks"
+
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

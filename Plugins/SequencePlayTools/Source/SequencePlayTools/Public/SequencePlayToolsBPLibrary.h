@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "MovieSceneSequencePlayer.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "SequencePlayToolsBPLibrary.generated.h"
 
@@ -34,5 +35,15 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Sequence Play Tools", meta = (WorldContext = "WorldContextObject"))
 	static void SetSmoothChaserCameraTarget(UObject* WorldContextObject, class ACineCameraActor* NewTargetCamera, bool bSnapImmediately = false);
+	
+	UFUNCTION(BlueprintCallable, Category = "Sequence Play Tools", meta = (WorldContext = "WorldContextObject"))
+	static void SaveLoopbackLocation(UObject* WorldContextObject, class UMovieSceneSequence* LevelSequence, int32 MaxLoopbacks = -1);
+	
+	UFUNCTION(BlueprintCallable, Category = "Sequence Play Tools", meta = (WorldContext = "WorldContextObject"))
+	static void TriggerSequenceLoopback(UObject* WorldContextObject, class UMovieSceneSequence* LevelSequence);
 
+	private:
+	static TMap<UMovieSceneSequence*, int32> SequenceLoopbackCounters;
+	static TMap<UMovieSceneSequence*, FMovieSceneSequencePlaybackParams> SequenceLoopbackBookmarks;
+	static class ALevelSequenceActor* FindUniqueSequenceActor(const UMovieSceneSequence* LevelSequence, const UObject* WorldContextObject);
 };
