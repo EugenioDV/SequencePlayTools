@@ -1,12 +1,9 @@
-﻿// SequenceOrchestrator.cpp
-
-#include "SequenceOrchestrator.h"
+﻿#include "SequenceOrchestrator.h"
 #include "MovieSceneSequencePlayer.h"
 #include "LevelSequencePlayer.h"
 
 ASequenceOrchestrator::ASequenceOrchestrator()
 {
-    // Set this actor to call Tick() every frame. You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = false;
 }
 
@@ -16,7 +13,7 @@ void ASequenceOrchestrator::BeginPlay()
     
     if (bAutoPlayAtStart)
     {
-            PlayQueueItem(CurrentQueueIndex);
+        PlayQueueItem(CurrentQueueIndex);
     }
 }
 
@@ -24,40 +21,89 @@ void ASequenceOrchestrator::PlayQueueItem(int32 QueueItemIndex)
 {
     if (!SequenceQueue.IsValidIndex(QueueItemIndex))
     {
-        // Handle invalid index error. Could log an error or implement other error handling logic here.
-        UE_LOG(LogTemp, Error, TEXT("SequenceOrchestrator: QueueItemIndex at index %i is out of range."), QueueItemIndex);
+        UE_LOG(LogTemp, Warning, TEXT("ASequenceOrchestrator::PlayQueueItem: QueueItemIndex at index %i is out of range."), QueueItemIndex);
         return;
     }
     
-    // Stop the currently playing sequence and unbind all from OnFinished
+    Resume();
+
     const FSequenceActorQueueItem& OldItemToStop = SequenceQueue[CurrentQueueIndex];
-    if (OldItemToStop.MainSequence && OldItemToStop.MainSequence->SequencePlayer)
+    if (IsValid(OldItemToStop.MainSequence) && IsValid(OldItemToStop.MainSequence->SequencePlayer))
     {
         OldItemToStop.MainSequence->SequencePlayer->OnFinished.RemoveAll(this);
         OldItemToStop.MainSequence->SequencePlayer->Stop();
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("ASequenceOrchestrator::PlayQueueItem: OldItemToStop MainSequence or SequencePlayer is invalid."));
     }
 
     CurrentQueueIndex = QueueItemIndex;
     
     const FSequenceActorQueueItem& NewItemToPlay = SequenceQueue[QueueItemIndex];
-    if (NewItemToPlay.MainSequence  && NewItemToPlay.MainSequence->SequencePlayer)
+    if (IsValid(NewItemToPlay.MainSequence) && IsValid(NewItemToPlay.MainSequence->SequencePlayer))
     {
         NewItemToPlay.MainSequence->SequencePlayer->OnFinished.AddDynamic(this, &ASequenceOrchestrator::OnMainSequenceFinished);
         NewItemToPlay.MainSequence->SequencePlayer->Play();
     }
     else
     {
-        // Handle error for missing main sequence
-        UE_LOG(LogTemp, Error, TEXT("SequenceOrchestrator: MainSequence at index %i is null."), CurrentQueueIndex);
-        return;
+        UE_LOG(LogTemp, Error, TEXT("ASequenceOrchestrator::PlayQueueItem: NewItemToPlay MainSequence or SequencePlayer at index %i is null."), QueueItemIndex);
     }
 
     UpdateSubSequences(NewItemToPlay.SubSequences);
 }
 
+void ASequenceOrchestrator::Pause()
+{
+    if (bIsPaused) return;
+    bIsPaused = true;
+    
+    for (const auto LevelSequence : ActiveSubSequences)
+    {
+        if (IsValid(LevelSequence) && IsValid(LevelSequence->GetSequencePlayer()) && LevelSequence->GetSequencePlayer()->IsPlaying())
+        {
+            CachedPausedSequences.Add(LevelSequence);
+            LevelSequence->GetSequencePlayer()->Pause();
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("ASequenceOrchestrator::Pause: LevelSequence or SequencePlayer is invalid."));
+        }
+    }
+    
+    if (IsValid(SequenceQueue[GetCurrentQueueIndex()].MainSequence) && IsValid(SequenceQueue[GetCurrentQueueIndex()].MainSequence->GetSequencePlayer()) && SequenceQueue[GetCurrentQueueIndex()].MainSequence->GetSequencePlayer()->IsPlaying())
+    {
+        CachedPausedSequences.Add(SequenceQueue[GetCurrentQueueIndex()].MainSequence);
+        SequenceQueue[GetCurrentQueueIndex()].MainSequence->GetSequencePlayer()->Pause();
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("ASequenceOrchestrator::Pause: MainSequence or SequencePlayer at current index is invalid."));
+    }
+}
+
+void ASequenceOrchestrator::Resume()
+{
+    bIsPaused = false;
+    
+    for (const auto LevelSequence : CachedPausedSequences)
+    {
+        if (IsValid(LevelSequence) && IsValid(LevelSequence->GetSequencePlayer()))
+        {
+            LevelSequence->GetSequencePlayer()->Play();
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("ASequenceOrchestrator::Resume: LevelSequence or SequencePlayer is invalid."));
+        }
+    }
+
+    CachedPausedSequences.Reset();
+}
+
 void ASequenceOrchestrator::OnMainSequenceFinished()
 {
-    
     if (CurrentQueueIndex < SequenceQueue.Num() - 1)
     {
         if (SequenceQueue[CurrentQueueIndex].bAutoPlayNext)
@@ -65,10 +111,7 @@ void ASequenceOrchestrator::OnMainSequenceFinished()
             PlayQueueItem(CurrentQueueIndex + 1);
         }
     }
-    else
-    {
-        // Reached the end of the queue, handle loop or completion here
-    }
+    // Additional logic for handling the end of the queue or looping could be implemented here.
 }
 
 void ASequenceOrchestrator::UpdateSubSequences(const TArray<ALevelSequenceActor*>& NewSubSequences)
@@ -81,9 +124,8 @@ void ASequenceOrchestrator::StopMissingSubSequences(const TArray<ALevelSequenceA
 {
     for (ALevelSequenceActor* SubSequence : ActiveSubSequences)
     {
-        if (!NextSubSequences.Contains(SubSequence))
+        if (!NextSubSequences.Contains(SubSequence) && IsValid(SubSequence) && IsValid(SubSequence->SequencePlayer))
         {
-            // Stop the subsequence if it's not in the next set
             SubSequence->SequencePlayer->Stop();
         }
     }
@@ -93,13 +135,11 @@ void ASequenceOrchestrator::StartNewSubSequences(const TArray<ALevelSequenceActo
 {
     for (ALevelSequenceActor* SubSequence : NextSubSequences)
     {
-        if (!ActiveSubSequences.Contains(SubSequence))
+        if (!ActiveSubSequences.Contains(SubSequence) && IsValid(SubSequence) && IsValid(SubSequence->SequencePlayer))
         {
-            // Start the subsequence if it's new
             SubSequence->SequencePlayer->Play();
         }
     }
 
-    // Update the active subsequences to the new set
     ActiveSubSequences = NextSubSequences;
 }

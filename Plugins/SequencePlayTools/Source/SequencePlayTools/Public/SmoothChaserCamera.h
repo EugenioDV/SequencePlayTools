@@ -16,7 +16,7 @@ public:
 	//todo timeline length (bp) should be based on distance with min and max and a multiplier
 	//todo camera snap conditions (e.g. too far, linetrace hit, etc)
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Smooth Chaser Camera")
-	void SetTargetCamera(ACineCameraActor* NewTargetCamera, bool bSnapImmediately = false);
+	void SetTargetCamera(ACineCameraActor* NewTargetCamera, bool bSnapImmediately = false, float InterpolationTime = 2.f);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Smooth Chaser Camera")

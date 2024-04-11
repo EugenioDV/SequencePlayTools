@@ -43,11 +43,17 @@ protected:
 
 public:
 
-	// Starts the sequence queue
-	void StartSequenceQueue();
+	int32 GetCurrentQueueIndex() const
+	{
+		return CurrentQueueIndex;
+	}
 
 	// Plays a single queue item
 	void PlayQueueItem(int32 QueueItemIndex);
+
+	void Pause();
+	
+	void Resume();
 
 	// Called when the main sequence finishes
 	UFUNCTION()
@@ -63,7 +69,7 @@ public:
 	// Whether to automatically play the sequence queue on BeginPlay
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SequencePlayTools")
 	bool bAutoPlayAtStart = true;
-
+	
 private:
 	// Index of the currently playing item in the sequence queue
 	UPROPERTY(VisibleAnywhere, Category = "SequencePlayTools")
@@ -78,4 +84,10 @@ private:
 
 	// Starts new subsequences present in the next queue item but not in the current
 	void StartNewSubSequences(const TArray<ALevelSequenceActor*>& NextSubSequences);
+
+	// When pause, the playing subsequences will be saved here
+	UPROPERTY()
+	TArray<ALevelSequenceActor*> CachedPausedSequences;
+
+	bool bIsPaused = true;
 };

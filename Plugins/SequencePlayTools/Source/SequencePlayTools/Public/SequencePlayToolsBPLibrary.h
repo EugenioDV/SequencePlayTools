@@ -30,16 +30,28 @@ class USequencePlayToolsBPLibrary : public UBlueprintFunctionLibrary
 	GENERATED_UCLASS_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "Sequence Play Tools", meta = (WorldContext = "WorldContextObject"))
+	UFUNCTION(BlueprintCallable, Category = "Sequence Play Tools|Sequence Orchestrator", meta = (WorldContext = "WorldContextObject"))
 	static void PlaySequenceQueueItemAt(UObject* WorldContextObject, int32 QueueItemIndex);
 
-	UFUNCTION(BlueprintCallable, Category = "Sequence Play Tools", meta = (WorldContext = "WorldContextObject"))
-	static void SetSmoothChaserCameraTarget(UObject* WorldContextObject, class ACineCameraActor* NewTargetCamera, bool bSnapImmediately = false);
+	UFUNCTION(BlueprintCallable, Category = "Sequence Play Tools|Sequence Orchestrator", meta = (WorldContext = "WorldContextObject"))
+	static void PlayNextSequence(UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable, Category = "Sequence Play Tools|Sequence Orchestrator", meta = (WorldContext = "WorldContextObject"))
+	static void PlayPreviousSequence(UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable, Category = "Sequence Play Tools|Sequence Orchestrator", meta = (WorldContext = "WorldContextObject"))
+	static void PauseOrchestrator(UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable, Category = "Sequence Play Tools|Sequence Orchestrator", meta = (WorldContext = "WorldContextObject"))
+	static void ResumeOrchestrator(UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable, Category = "Sequence Play Tools|Smooth Chaser Camera", meta = (WorldContext = "WorldContextObject"))
+	static void SetSmoothChaserCameraTarget(UObject* WorldContextObject, class ACineCameraActor* NewTargetCamera, bool bSnapImmediately = false, float InterpolationTime = 2.f);
 	
-	UFUNCTION(BlueprintCallable, Category = "Sequence Play Tools", meta = (WorldContext = "WorldContextObject"))
+	UFUNCTION(BlueprintCallable, Category = "Sequence Play Tools|Sequence Loopback", meta = (WorldContext = "WorldContextObject"))
 	static void SaveLoopbackLocation(UObject* WorldContextObject, class UMovieSceneSequence* LevelSequence, int32 MaxLoopbacks = -1);
 	
-	UFUNCTION(BlueprintCallable, Category = "Sequence Play Tools", meta = (WorldContext = "WorldContextObject"))
+	UFUNCTION(BlueprintCallable, Category = "Sequence Play Tools|Sequence Loopback", meta = (WorldContext = "WorldContextObject"))
 	static void TriggerSequenceLoopback(UObject* WorldContextObject, class UMovieSceneSequence* LevelSequence);
 
 	private:

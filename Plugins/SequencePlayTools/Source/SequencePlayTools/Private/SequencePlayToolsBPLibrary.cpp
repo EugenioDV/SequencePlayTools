@@ -18,29 +18,81 @@ USequencePlayToolsBPLibrary::USequencePlayToolsBPLibrary(const FObjectInitialize
 
 }
 
+ASequenceOrchestrator* FindSequenceOrchestrator(const UObject* WorldContextObject)
+{
+    if (!WorldContextObject) return nullptr;
+
+    const UWorld* World = WorldContextObject->GetWorld();
+    if (!World) return nullptr;
+
+    // Find the first SequenceOrchestrator instance in the world
+    for (TActorIterator<ASequenceOrchestrator> It(World); It; ++It)
+    {
+        if (ASequenceOrchestrator* Orchestrator = *It)
+        {
+            return Orchestrator;
+        }
+    }
+    return nullptr;
+}
+
 void USequencePlayToolsBPLibrary::PlaySequenceQueueItemAt(UObject* WorldContextObject, int32 QueueItemIndex)
 {
-	if (!WorldContextObject) return;
+    if (ASequenceOrchestrator* Orchestrator = FindSequenceOrchestrator(WorldContextObject))
+    {
+        Orchestrator->PlayQueueItem(QueueItemIndex);
+        return;
+    }
 
-	const UWorld* World = WorldContextObject->GetWorld();
-	if (!World) return;
+	UE_LOG(LogTemp, Error, TEXT("PlaySequenceQueueItemAt: SequenceOrchestrator not found in the world."));
+}
 
-	// Find the first SequenceOrchestrator instance in the world
-	for (TActorIterator<ASequenceOrchestrator> It(World); It; ++It)
-	{
-		if (ASequenceOrchestrator* Orchestrator = *It)
-		{
-			// Play the specified queue item
-			Orchestrator->PlayQueueItem(QueueItemIndex);
-			return;
-		}
-	}
+void USequencePlayToolsBPLibrary::PlayNextSequence(UObject* WorldContextObject)
+{
+    if (ASequenceOrchestrator* Orchestrator = FindSequenceOrchestrator(WorldContextObject))
+    {
+        Orchestrator->PlayQueueItem(Orchestrator->GetCurrentQueueIndex()+1);
+        return;
+    }
+    
+    UE_LOG(LogTemp, Error, TEXT("PlayNextSequence: SequenceOrchestrator not found in the world."));
+}
 
-	UE_LOG(LogTemp, Error, TEXT("SequenceOrchestrator not found in the world."));
+void USequencePlayToolsBPLibrary::PlayPreviousSequence(UObject* WorldContextObject)
+{
+    if (ASequenceOrchestrator* Orchestrator = FindSequenceOrchestrator(WorldContextObject))
+    {
+        Orchestrator->PlayQueueItem(Orchestrator->GetCurrentQueueIndex()-1);
+        return;
+    }
+    
+    UE_LOG(LogTemp, Error, TEXT("PlayPreviousSequence: SequenceOrchestrator not found in the world."));
+}
+
+void USequencePlayToolsBPLibrary::PauseOrchestrator(UObject* WorldContextObject)
+{
+    if (ASequenceOrchestrator* Orchestrator = FindSequenceOrchestrator(WorldContextObject))
+    {
+        Orchestrator->Pause();
+        return;
+    }
+    
+    UE_LOG(LogTemp, Error, TEXT("PauseOrchestrator: SequenceOrchestrator not found in the world."));
+}
+
+void USequencePlayToolsBPLibrary::ResumeOrchestrator(UObject* WorldContextObject)
+{
+    if (ASequenceOrchestrator* Orchestrator = FindSequenceOrchestrator(WorldContextObject))
+    {
+        Orchestrator->Resume();
+        return;
+    }
+    
+    UE_LOG(LogTemp, Error, TEXT("ResumeOrchestrator: SequenceOrchestrator not found in the world."));
 }
 
 void USequencePlayToolsBPLibrary::SetSmoothChaserCameraTarget(UObject* WorldContextObject,
-                                                              ACineCameraActor* NewTargetCamera, bool bSnapImmediately)
+                                                              ACineCameraActor* NewTargetCamera, bool bSnapImmediately, float InterpolationTime)
 {
 	if (!WorldContextObject) return;
 
@@ -52,7 +104,7 @@ void USequencePlayToolsBPLibrary::SetSmoothChaserCameraTarget(UObject* WorldCont
 	{
 		if (ASmoothChaserCamera* SmoothChaserCamera = *It)
 		{
-			SmoothChaserCamera->SetTargetCamera(NewTargetCamera,bSnapImmediately);
+			SmoothChaserCamera->SetTargetCamera(NewTargetCamera,bSnapImmediately,InterpolationTime);
 			return;
 		}
 	}
@@ -118,7 +170,7 @@ void USequencePlayToolsBPLibrary::TriggerSequenceLoopback(UObject* WorldContextO
     int32* Counter = SequenceLoopbackCounters.Find(LevelSequence);
     if (*Counter == 0)
     {
-        UE_LOG(LogTemp, Warning, TEXT("TriggerSequenceLoopback: Loopback counter for LevelSequence has reached zero."));
+        UE_LOG(LogTemp, Verbose, TEXT("TriggerSequenceLoopback: Loopback counter for LevelSequence has reached zero."));
         // Consider whether you need to reset the counter here or take another action
         return;
     }
