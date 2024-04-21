@@ -24,6 +24,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	// Returns all widgets able to display text in the hierarchy of the Widget Component
+	UFUNCTION(BlueprintCallable, Category = "Cinematic 3D Widget")
+	TArray<UWidget*> GetAllTextWidgets();
+
 protected:
 
 	/** The widget component for this actor */
@@ -32,10 +36,10 @@ protected:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cinematic3DWidget", Interp, meta=(DisplayName = "Opacity"))
-	float Opacity;
+	float Opacity = 1.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cinematic3DWidget", Interp, meta=(DisplayName = "Text Opacity"))
-	float TextOpacity;
+	float TextOpacity = 1.f;
 
 	// UserWidget class reference exposed to cinematics
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cinematic3DWidget Setup Essentials", meta=(DisplayName = "Widget Class"))
