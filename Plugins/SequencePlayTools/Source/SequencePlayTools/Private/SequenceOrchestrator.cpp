@@ -13,7 +13,7 @@ void ASequenceOrchestrator::BeginPlay()
     
     if (bAutoPlayAtStart)
     {
-        PlayQueueItem(CurrentQueueIndex);
+        PlayQueueItem(QueueIndex);
     }
 }
 
@@ -27,7 +27,7 @@ void ASequenceOrchestrator::PlayQueueItem(int32 QueueItemIndex)
     
     Resume();
 
-    const FSequenceActorQueueItem& OldItemToStop = SequenceQueue[CurrentQueueIndex];
+    const FSequenceActorQueueItem& OldItemToStop = SequenceQueue[QueueIndex];
     if (IsValid(OldItemToStop.MainSequence) && IsValid(OldItemToStop.MainSequence->SequencePlayer))
     {
         OldItemToStop.MainSequence->SequencePlayer->OnFinished.RemoveAll(this);
@@ -38,7 +38,7 @@ void ASequenceOrchestrator::PlayQueueItem(int32 QueueItemIndex)
         UE_LOG(LogTemp, Warning, TEXT("ASequenceOrchestrator::PlayQueueItem: OldItemToStop MainSequence or SequencePlayer is invalid."));
     }
 
-    CurrentQueueIndex = QueueItemIndex;
+    QueueIndex = QueueItemIndex;
     
     const FSequenceActorQueueItem& NewItemToPlay = SequenceQueue[QueueItemIndex];
     if (IsValid(NewItemToPlay.MainSequence) && IsValid(NewItemToPlay.MainSequence->SequencePlayer))
@@ -104,11 +104,11 @@ void ASequenceOrchestrator::Resume()
 
 void ASequenceOrchestrator::OnMainSequenceFinished()
 {
-    if (CurrentQueueIndex < SequenceQueue.Num() - 1)
+    if (QueueIndex < SequenceQueue.Num() - 1)
     {
-        if (SequenceQueue[CurrentQueueIndex].bAutoPlayNext)
+        if (SequenceQueue[QueueIndex].bAutoPlayNext)
         {
-            PlayQueueItem(CurrentQueueIndex + 1);
+            PlayQueueItem(QueueIndex + 1);
         }
     }
     // Additional logic for handling the end of the queue or looping could be implemented here.

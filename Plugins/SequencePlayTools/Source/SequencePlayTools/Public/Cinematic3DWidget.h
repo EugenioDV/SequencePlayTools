@@ -7,6 +7,17 @@
 #include "GameFramework/Actor.h"
 #include "Cinematic3DWidget.generated.h"
 
+UENUM(BlueprintType)
+enum class ECinematicWidgetSpace : uint8
+{
+	Undefined,
+	/** The widget is rendered in the world as mesh, it can be occluded like any other mesh in the world. */
+	World,
+	/** The widget is rendered in the screen, completely outside of the world, never occluded. */
+	Screen
+};
+
+
 UCLASS()
 class SEQUENCEPLAYTOOLS_API ACinematic3DWidget : public AActor
 {
@@ -38,15 +49,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cinematic3DWidget", Interp, meta=(DisplayName = "Opacity"))
 	float Opacity = 1.f;
 
+	// Opacity for all text elements in the widget
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cinematic3DWidget", Interp, meta=(DisplayName = "Text Opacity"))
 	float TextOpacity = 1.f;
 
-	// UserWidget class reference exposed to cinematics
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cinematic3DWidget Setup Essentials", meta=(DisplayName = "Widget Class"))
+	// UserWidget class reference to be used for spawnables (Component variable in spawnnables won't work)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cinematic3DWidget Spawnable Setup Essentials", meta=(DisplayName = "Widget Class"))
 	TSubclassOf<UUserWidget> WidgetClass;
 
-	// World or screen
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cinematic3DWidget Setup Essentials", meta=(DisplayName = "Widget Render Space"))
-	EWidgetSpace  WidgetSpace = EWidgetSpace::Screen;
+	// World or screen, leave blank to leave the component setting (only set this for spawnables as the component variables don't work)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cinematic3DWidget Spawnable Setup Essentials", meta=(DisplayName = "Widget Render Space"))
+	ECinematicWidgetSpace  WidgetSpace = ECinematicWidgetSpace::Undefined;
 
 };

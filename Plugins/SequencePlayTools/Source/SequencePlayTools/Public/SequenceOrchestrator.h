@@ -45,7 +45,7 @@ public:
 
 	int32 GetCurrentQueueIndex() const
 	{
-		return CurrentQueueIndex;
+		return QueueIndex;
 	}
 
 	// Plays a single queue item
@@ -59,21 +59,24 @@ public:
 	UFUNCTION()
 	void OnMainSequenceFinished();
 
+	UFUNCTION(BlueprintCallable, Category = "Sequence Orchestrator")
+	int32 GetQueueIndex(){ return QueueIndex; }
+
 	// Updates the subsequences for the next queue item
 	void UpdateSubSequences(const TArray<ALevelSequenceActor*>& NewSubSequences);
 
 	// Array of sequence queue items
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SequencePlayTools")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sequence Orchestrator")
 	TArray<FSequenceActorQueueItem> SequenceQueue;
 	
 	// Whether to automatically play the sequence queue on BeginPlay
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SequencePlayTools")
+	UPROPERTY(EditAnywhere, Category = "Sequence Orchestrator")
 	bool bAutoPlayAtStart = true;
 	
 private:
-	// Index of the currently playing item in the sequence queue
-	UPROPERTY(VisibleAnywhere, Category = "SequencePlayTools")
-	int32 CurrentQueueIndex = 0;
+	// Index of the currently playing item in the sequence queue, also works as starter index
+	UPROPERTY(EditAnywhere, Category = "Sequence Orchestrator")
+	int32 QueueIndex = 0;
 	
 	// Tracks active subsequences to manage transitions between queue items
 	UPROPERTY()

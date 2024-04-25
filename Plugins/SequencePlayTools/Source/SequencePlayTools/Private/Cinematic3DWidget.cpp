@@ -27,12 +27,19 @@ ACinematic3DWidget::ACinematic3DWidget()
 void ACinematic3DWidget::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	WidgetComponent->SetWidgetSpace(WidgetSpace);
 
-	if (!IsValid(WidgetClass))
+	if (WidgetSpace != ECinematicWidgetSpace::Undefined)
+	{
+		WidgetComponent->SetWidgetSpace(WidgetSpace == ECinematicWidgetSpace::Screen ? EWidgetSpace::Screen : EWidgetSpace::World);
+	}
+
+	if (!IsValid(WidgetClass) && !IsValid(WidgetComponent->GetWidgetClass()))
 	{
 		UE_LOG(LogTemp, Error, TEXT("ACinematic3DWidget: Invalid Widget Class! Please set it up in the Category All->Cinematic3DWidget Setup Essentials"));
+	}
+	else if (IsValid(WidgetClass) && !IsValid(WidgetComponent->GetWidgetClass()))
+	{
+		WidgetComponent->SetWidgetClass(WidgetClass);
 	}
 	
 }
